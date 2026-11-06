@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pergi Jalan-Jalan Yuk?</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7e6ec;
+    --card: #e9f7ef;
+    --pink: #d4607c;
+    --pink-soft: #f3b6c6;
+    --text: #4a3a44;
+    --muted: #8a7a84;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 50% 0%, #fbe3ea, var(--bg) 70%);
+    color: var(--text);
+    font-family: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+    overflow: hidden;
+    padding: env(safe-area-inset-top, 0px) 12px env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Bunga melayang */
+  .flower {
+    position: fixed;
+    bottom: -60px;
+    pointer-events: none;
+    user-select: none;
+    animation-name: rise;
+    animation-timing-function: ease-in-out;
+    animation-fill-mode: forwards;
+  }
+  @keyframes rise {
+    0%   { transform: translateX(0) rotate(0deg); opacity: 0; }
+    10%  { opacity: 1; }
+    50%  { transform: translateX(30px) rotate(180deg); }
+    100% { transform: translateX(-20px) translateY(-115vh) rotate(360deg); opacity: 0; }
+  }
+
+  /* Kartu undangan */
+  .card {
+    position: relative;
+    width: min(360px, 92vw);
+    max-height: 94vh;
+    overflow-y: auto;
+    background: var(--card);
+    border-radius: 24px;
+    border-top: 6px solid var(--pink);
+    padding: 22px 22px 26px;
+    text-align: center;
+    box-shadow: 0 14px 36px rgba(212, 96, 124, .18);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity .4s ease, transform .4s ease;
+  }
+  .card.show { opacity: 1; transform: none; }
+
+  .label {
+    font-size: .65rem;
+    letter-spacing: .3em;
+    color: var(--pink);
+    text-transform: uppercase;
+    margin: 0 0 10px;
+  }
+  .heart {
+    color: var(--pink);
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+  }
+
+  /* Foto: ganti URL src dengan foto kamu sendiri */
+  .photo {
+    width: 150px;
+    height: 180px;
+    margin: 0 auto 14px;
+    border-radius: 14px;
+    border: 4px solid #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
+    background: linear-gradient(135deg, #fbe3ea, #d7eee2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: .75rem;
+    overflow: hidden;
+  }
+  .photo img { width: 100%; height: 100%; object-fit: cover; }
+
+  h1 {
+    font-family: "Dancing Script", cursive;
+    font-weight: 700;
+    font-size: clamp(1.7rem, 6vw, 2.1rem);
+    line-height: 1.2;
+    margin: 0 0 6px;
+    color: var(--text);
+  }
+  .from {
+    font-size: .8rem;
+    color: var(--pink);
+    margin: 0 0 22px;
+  }
+
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    color: #fff;
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  #yes {
+    width: 100%;
+    background: var(--pink);
+    box-shadow: 0 6px 16px rgba(212, 96, 124, .35);
+  }
+  #yes:hover { transform: scale(1.03); }
+  #no {
+    width: 60%;
+    background: #b9b3bd;
+    font-size: .9rem;
+    padding: 9px 20px;
+  }
+
+  #msg {
+    margin-top: 18px;
+    font-size: 1rem;
+    min-height: 1.5em;
+    color: var(--pink);
+    font-weight: 600;
+  }
+
+  /* Form kapan kamu free */
+  .schedule {
+    margin-top: 14px;
+    background: #fff;
+    border-radius: 14px;
+    padding: 12px 12px 14px;
+    text-align: left;
+    border: 1px dashed var(--pink-soft);
+  }
+  .schedule h2 {
+    font-family: "Dancing Script", cursive;
+    font-size: 1.3rem;
+    margin: 0 0 8px;
+    text-align: center;
+    color: var(--pink);
+  }
+  .schedule label {
+    display: block;
+    font-size: .72rem;
+    margin-bottom: 6px;
+    color: var(--muted);
+  }
+  .schedule select, .schedule input {
+    display: block;
+    width: 100%;
+    margin-top: 2px;
+    padding: 5px 8px;
+    font-family: inherit;
+    font-size: .8rem;
+    border: 1px solid var(--pink-soft);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--text);
+  }
+  .row { display: flex; gap: 10px; }
+  .row label { flex: 1; }
+  .schedule .btn-main {
+    display: block;
+    width: 100%;
+    margin-top: 4px;
+    padding: 7px;
+    font-size: .8rem;
+    background: var(--pink);
+  }
+  .schedule .btn-sub {
+    display: block;
+    width: 100%;
+    margin-top: 6px;
+    padding: 6px;
+    background: #b9b3bd;
+    font-size: .75rem;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .chip {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 4px;
+    margin: 0 !important;
+    padding: 5px 10px;
+    border: 1px solid var(--pink-soft);
+    border-radius: 999px;
+    font-size: .75rem !important;
+    color: var(--text) !important;
+    cursor: pointer;
+  }
+  .chip:has(input:checked) { background: var(--pink-soft); }
+  .chip input {
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    accent-color: var(--pink);
+  }
+  .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 6px 0 12px; }
+  .chip {
+    font-size: .8rem !important;
+    padding: 6px 12px;
+    background: #fff;
+    border: 2px solid #fff !important;
+    border-radius: 14px !important;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, .15);
+    transform: rotate(var(--r, 0deg));
+    transition: transform .2s ease, background .2s ease;
+  }
+  .chip:nth-child(odd) { --r: -4deg; }
+  .chip:nth-child(even) { --r: 3deg; }
+  .chip:hover { transform: rotate(0deg) scale(1.08); }
+  .chip:has(input:checked) {
+    background: var(--pink-soft);
+    transform: rotate(0deg) scale(1.1);
+  }
+  #activity h2, #dress h2 { margin-top: 14px; }
+  #dress { text-align: center; }
+  #dress .sub {
+    font-family: "Dancing Script", cursive;
+    color: var(--muted);
+    font-size: .9rem;
+    margin: 14px 0 0;
+  }
+  #dress h2.script {
+    font-family: "Dancing Script", cursive;
+    font-size: 1.6rem;
+    margin: 0 0 10px;
+    color: var(--text);
+  }
+  #dress .chips { gap: 10px 14px; margin: 4px 0 10px; }
+  #dress .chip {
+    background: transparent;
+    border: none !important;
+    box-shadow: none;
+    transform: none;
+    font-size: .85rem !important;
+    padding: 6px 12px;
+    border-radius: 999px !important;
+    color: var(--text) !important;
+  }
+  #dress .chip:hover { transform: none; }
+  #dress .chip:has(input:checked) {
+    background: var(--pink);
+    color: #fff !important;
+    transform: none;
+  }
+  #dressLain {
+    text-align: center;
+    border: none;
+    border-bottom: 1px solid var(--pink-soft);
+    border-radius: 0;
+    background: transparent;
+    font-size: .8rem;
+    margin: 6px 0 14px;
+  }
+  #kirimDress {
+    border-radius: 999px;
+    width: 60%;
+    margin: 8px auto 0;
+    display: block;
+  }
+  #pesan { text-align: center; }
+  #pesan h2.script {
+    font-family: "Dancing Script", cursive;
+    font-size: 1.4rem;
+    margin: 14px 0 10px;
+    color: var(--text);
+  }
+  #pesanText {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    font-family: inherit;
+    font-size: .85rem;
+    border: 1px solid var(--pink-soft);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--text);
+    resize: none;
+  }
+  #kirimPesan {
+    border-radius: 999px;
+    width: 60%;
+    margin: 10px auto 0;
+    display: block;
+  }
+  .ticket-wrap { text-align: center; padding-top: 4px; }
+  .t-heart { color: var(--pink); font-size: 2rem; line-height: 1; }
+  .t-yeay {
+    font-family: "Dancing Script", cursive;
+    font-size: 1.6rem;
+    margin: 4px 0 2px;
+    color: var(--text);
+  }
+  .t-sub {
+    font-size: .6rem;
+    letter-spacing: .2em;
+    color: var(--pink);
+    margin: 0 0 12px;
+  }
+  .ticket {
+    background: #fff;
+    border-radius: 16px;
+    padding: 14px 14px 10px;
+    text-align: left;
+    box-shadow: 0 6px 16px rgba(212, 96, 124, .12);
+  }
+  .t-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px dashed var(--pink-soft);
+    padding-bottom: 10px;
+    margin-bottom: 4px;
+  }
+  .t-label { font-size: .55rem; letter-spacing: .2em; color: var(--muted); margin: 0; }
+  .t-title {
+    font-family: "Dancing Script", cursive;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text);
+  }
+  .t-badge {
+    width: 36px;
+    height: 36px;
+    border: 1px dashed var(--pink);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--pink);
+  }
+  .t-row { padding: 6px 0; border-bottom: 1px solid #f6e3ea; }
+  .t-k {
+    font-size: .55rem;
+    letter-spacing: .15em;
+    color: var(--muted);
+    margin: 0 0 2px;
+    text-transform: uppercase;
+  }
+  .t-v {
+    font-family: "Dancing Script", cursive;
+    font-size: 1.1rem;
+    margin: 0;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .t-note { background: #f7f2f5; border-radius: 10px; padding: 8px 10px; margin-top: 6px; }
+  .t-note .t-v { font-size: 1rem; }
+  #hasilAktivitas, #hasilDress, #hasilPesan {
+    margin-top: 8px;
+    text-align: center;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--pink);
+    min-height: 1.2em;
+  }
+  #result {
+    margin-top: 14px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--pink);
+    min-height: 1.4em;
+  }
+  /* ===== 3D & animasi ===== */
+  @keyframes flipIn {
+    from { opacity: 0; transform: perspective(800px) rotateX(-45deg) translateY(24px); }
+    to   { opacity: 1; transform: perspective(800px) rotateX(0) translateY(0); }
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: perspective(400px) scale(.5) rotate(var(--r, 0deg)); }
+    to   { opacity: 1; transform: perspective(400px) scale(1) rotate(var(--r, 0deg)); }
+  }
+  #activity:not([hidden]),
+  #dress:not([hidden]),
+  #pesan:not([hidden]),
+  .schedule,
+  .ticket-wrap {
+    animation: flipIn .6s cubic-bezier(.2, .8, .2, 1) backwards;
+  }
+
+  .card { transform-style: preserve-3d; }
+  .ticket {
+    transform: perspective(800px) rotateX(4deg);
+    box-shadow: 0 10px 0 #f0c9d5, 0 16px 26px rgba(212, 96, 124, .25);
+  }
+  .t-row, .t-note { animation: popIn .45s ease backwards; }
+  .t-row:nth-child(2) { animation-delay: .1s; }
+  .t-row:nth-child(3) { animation-delay: .2s; }
+  .t-row:nth-child(4) { animation-delay: .3s; }
+  .t-row:nth-child(5) { animation-delay: .4s; }
+  .t-note { animation-delay: .5s; }
+  .t-badge { box-shadow: 0 3px 0 #f3b6c6; }
+
+  /* Tombol 3D: ada tepi bawah dan bisa ditekan */
+  button {
+    box-shadow: 0 5px 0 rgba(0, 0, 0, .18), 0 10px 16px rgba(0, 0, 0, .15);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  button:hover { transform: translateY(-2px); }
+  button:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .18);
+  }
+  #yes {
+    box-shadow: 0 6px 0 #b8445f, 0 12px 20px rgba(212, 96, 124, .35);
+  }
+  #yes:hover { transform: translateY(-2px) scale(1.03); }
+  #yes:active { box-shadow: 0 1px 0 #b8445f; }
+  #no { box-shadow: 0 5px 0 #8e8896, 0 10px 14px rgba(0, 0, 0, .12); }
+
+  /* Pilihan stiker jadi 3D */
+  .chip {
+    transform: perspective(300px) rotateX(10deg) rotate(var(--r, 0deg));
+    box-shadow: 0 5px 0 #e6c3cf, 0 9px 14px rgba(0, 0, 0, .12);
+    animation: popIn .4s cubic-bezier(.2, .9, .3, 1.3) backwards;
+  }
+  .chip:nth-child(2) { animation-delay: .08s; }
+  .chip:nth-child(3) { animation-delay: .16s; }
+  .chip:nth-child(4) { animation-delay: .24s; }
+  .chip:hover { transform: perspective(300px) rotateX(0) scale(1.08) translateY(-3px); }
+  .chip:has(input:checked) {
+    box-shadow: 0 3px 0 #b8445f, 0 6px 10px rgba(212, 96, 124, .3);
+    transform: perspective(300px) rotateX(0) scale(1.1);
+  }
+  #dress .chip {
+    box-shadow: none;
+    transform: none;
+    animation: popIn .4s cubic-bezier(.2, .9, .3, 1.3) backwards;
+  }
+  #dress .chip:has(input:checked) {
+    box-shadow: 0 4px 0 #b8445f, 0 6px 12px rgba(212, 96, 124, .3);
+  }
+
+  /* Kolom input ikut 3D */
+  .schedule select, .schedule input, #pesanText {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, .08), 0 2px 0 #f3b6c6;
+  }
+  #dressLain { box-shadow: none; }
+  /* ===== Tema pink ===== */
+  :root {
+    --bg: #ffd6e2;
+    --card: #ffc2d4;
+    --pink: #e0457b;
+    --pink-soft: #ffa3bf;
+    --text: #6b1e3d;
+    --muted: #a8527a;
+  }
+  body {
+    background: radial-gradient(circle at 50% 0%, #ffe3ec, #ff9fbd 75%);
+  }
+  .card {
+    background: #ffc2d4;
+    border-top-color: #e0457b;
+  }
+  .chip { background: #ffe0ea; }
+  .schedule { background: #ffd0de; }
+  .ticket { background: #ffe0ea; }
+  .t-note { background: #ffd0de; }
+  .t-row { border-bottom-color: #ffb3c9; }
+  .schedule select, .schedule input { background: #ffe0ea; }
+  #pesanText { background: #ffe0ea; }
+  .schedule .btn-sub { background: #c9879e; }
+  #no { background: #c9879e; }
+  #yes { background: #e0457b; }
+  .t-badge { border-color: #e0457b; color: #e0457b; }
+  /* ===== Tombol simpan & pilih lagi ===== */
+  .t-aksi {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .t-aksi button {
+    width: 70%;
+    border-radius: 999px;
+    font-size: .9rem;
+    padding: 10px;
+  }
+  .t-status {
+    font-size: .8rem;
+    color: var(--pink);
+    font-weight: 600;
+    margin: 0;
+    min-height: 1.2em;
+  }
+</style>
+</head>
+<body>
+
+<div class="card" id="card">
+  <p class="label">Special Invitation</p>
+  <div class="heart">♥</div>
+
+
+  <h1>pergi jalan-jalan ayok, mau nggak?</h1>
+  <p class="from">from aku ♥</p>
+
+  <div class="buttons" id="buttons">
+    <button id="yes">Yes</button>
+    <button id="no">No</button>
+  </div>
+  <div id="msg"></div>
+</div>
+
+<script>
+  const flowers = ["🌸", "🌷", "🌹", "🌼", "💮", "🌺"];
+
+  // Bunga memenuhi layar saat pertama dibuka
+  const card = document.getElementById("card");
+  let flowersLeft = 70;
+  let shown = false;
+  function showCard() {
+    if (shown) return;
+    shown = true;
+    card.classList.add("show");
+  }
+  for (let i = 0; i < 70; i++) {
+    const f = document.createElement("span");
+    f.className = "flower";
+    f.textContent = flowers[Math.floor(Math.random() * flowers.length)];
+    f.style.left = Math.random() * 100 + "vw";
+    f.style.bottom = (Math.random() * 90) + "vh";
+    f.style.fontSize = (22 + Math.random() * 26) + "px";
+    f.style.animationDuration = (3 + Math.random() * 1.5) + "s";
+    f.style.animationDelay = (-Math.random() * 1.5) + "s";
+    f.addEventListener("animationend", () => {
+      f.remove();
+      if (--flowersLeft === 0) showCard();
+    });
+    document.body.appendChild(f);
+  }
+
+  // Pertanyaan langsung muncul begitu bunga terakhir selesai melayang
+  setTimeout(showCard, 5000);
+
+  // Tombol No kabur saat disentuh/di-hover
+  const no = document.getElementById("no");
+  function dodge() {
+    const x = (Math.random() * 200 - 100).toFixed(0);
+    const y = (Math.random() * 120 - 60).toFixed(0);
+    no.style.transform = `translate(${x}px, ${y}px)`;
+  }
+  no.addEventListener("mouseenter", dodge);
+  no.addEventListener("touchstart", (e) => { e.preventDefault(); dodge(); }, { passive: false });
+
+  // Klik Yes
+  document.getElementById("yes").addEventListener("click", () => {
+    document.getElementById("buttons").style.display = "none";
+    document.getElementById("msg").textContent = "Yay! Siap-siap ya, aku tunggu 🥰";
+    showSchedule();
+    for (let i = 0; i < 20; i++) {
+      const f = document.createElement("span");
+      f.className = "flower";
+      f.textContent = "💖";
+      f.style.left = Math.random() * 100 + "vw";
+      f.style.fontSize = (18 + Math.random() * 16) + "px";
+      f.style.animationDuration = (4 + Math.random() * 3) + "s";
+      f.style.animationDelay = (Math.random() * 1) + "s";
+      document.body.appendChild(f);
+    }
+  });
+
+  // Form kapan kamu free
+  function showSchedule() {
+    const days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+    const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    const opts = (arr) => arr.map(v => `<option>${v}</option>`).join("");
+    let dates = "";
+    for (let d = 1; d <= 31; d++) dates += `<option value="${d}">${d}</option>`;
+    let years = "";
+    for (let y = 2026; y <= 2030; y++) years += `<option>${y}</option>`;
+
+    const box = document.createElement("div");
+    box.className = "schedule";
+    box.innerHTML = `
+      <h2>Kapan kamu free?</h2>
+      <div id="fields">
+        <label>Hari
+          <select id="hari">${opts(days)}</select>
+        </label>
+        <div class="row">
+          <label>Tanggal
+            <select id="tanggal">${dates}</select>
+          </label>
+          <label>Bulan
+            <select id="bulan">${opts(months)}</select>
+          </label>
+        </div>
+        <label>Tahun
+          <select id="tahun">${years}</select>
+        </label>
+        <label>Waktu
+          <select id="waktu">
+            <option>Pagi</option>
+            <option>Siang</option>
+            <option>Sore</option>
+          </select>
+        </label>
+        <label>Jam berapa?
+          <input type="time" id="jam" value="09:00">
+        </label>
+      </div>
+      <button id="save" class="btn-main">Kirim</button>
+      <button id="back" class="btn-main" hidden>Ubah pilihan</button>
+      <button id="kembali" class="btn-sub">Kembali, pikirkan lagi</button>
+      <div id="activity" hidden>
+        <h2>Kita mau ngapain nanti?</h2>
+        <div class="chips">
+          <label class="chip"><input type="checkbox" value="Jajanan"> 🍡 Jajanan</label>
+          <label class="chip"><input type="checkbox" value="Jalan-jalan"> 🚶 Jalan-jalan</label>
+          <label class="chip"><input type="checkbox" value="Ngopi"> ☕ Ngopi</label>
+          <label class="chip"><input type="checkbox" value="Nongkrong"> 🛋️ Nongkrong</label>
+        </div>
+        <input type="text" id="lainnya" placeholder="Mau ngapain lagi? tulis di sini...">
+        <button id="kirimAktivitas" class="btn-main">Next</button>
+        <div id="hasilAktivitas"></div>
+      </div>
+      <div id="dress" hidden>
+        <p class="sub">biar makin niat</p>
+        <h2 class="script">Dress code-nya?</h2>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="dress" value="Casual"> Casual</label>
+          <label class="chip"><input type="radio" name="dress" value="Formal"> Formal</label>
+          <label class="chip"><input type="radio" name="dress" value="Skena"> Skena</label>
+          <label class="chip"><input type="radio" name="dress" value="Bebas"> Bebas</label>
+        </div>
+        <input type="text" id="dressLain" placeholder="atau tulis sendiri...">
+        <button id="kirimDress" class="btn-main">Lanjut</button>
+        <div id="hasilDress"></div>
+      </div>
+      <div id="pesan" hidden>
+        <h2 class="script">tuliskan pesan untuk ahmad</h2>
+        <textarea id="pesanText" rows="4" placeholder="tulis apa aja di sini..."></textarea>
+        <button id="kirimPesan" class="btn-main">Kirim pesan</button>
+        <div id="hasilPesan"></div>
+      </div>
+      <div id="result"></div>
+    `;
+    card.appendChild(box);
+
+    // Kirim: tampilkan hasil
+    document.getElementById("save").addEventListener("click", () => {
+      const h = document.getElementById("hari").value;
+      const t = document.getElementById("tanggal").value;
+      const b = document.getElementById("bulan").value;
+      const y = document.getElementById("tahun").value;
+      const w = document.getElementById("waktu").value;
+      const j = document.getElementById("jam").value;
+      document.getElementById("result").textContent =
+        `Dicatat! ${h}, ${t} ${b} ${y}, ${w} jam ${j} 🥰`;
+    });
+
+    // Kirim: sembunyikan pilihan, tampilkan tombol Ubah pilihan
+    document.getElementById("save").addEventListener("click", () => {
+      document.getElementById("fields").hidden = true;
+      document.getElementById("save").hidden = true;
+      document.getElementById("back").hidden = false;
+      document.getElementById("activity").hidden = false;
+    });
+
+    // Ubah pilihan: kembali ke form, hapus hasil sebelumnya
+    document.getElementById("back").addEventListener("click", () => {
+      document.getElementById("fields").hidden = false;
+      document.getElementById("save").hidden = false;
+      document.getElementById("back").hidden = true;
+      document.getElementById("result").textContent = "";
+    });
+
+    // Kirim pilihan kegiatan
+    document.getElementById("kirimAktivitas").addEventListener("click", () => {
+      const pilihan = [...box.querySelectorAll('.chips input:checked')].map(i => i.value);
+      const lain = document.getElementById("lainnya").value.trim();
+      if (lain) pilihan.push(lain);
+      document.getElementById("hasilAktivitas").textContent =
+        pilihan.length ? "Kita mau: " + pilihan.join(", ") + " 🥰" : "Pilih dulu ya 🥺";
+    });
+
+    // Next: pindah dari kegiatan ke dress code
+    document.getElementById("kirimAktivitas").addEventListener("click", () => {
+      document.getElementById("activity").hidden = true;
+      document.getElementById("dress").hidden = false;
+    });
+
+    // Lanjut ke pesan
+    document.getElementById("kirimDress").addEventListener("click", () => {
+      document.getElementById("dress").hidden = true;
+      document.getElementById("pesan").hidden = false;
+    });
+
+    // Kirim dress code
+    document.getElementById("kirimDress").addEventListener("click", () => {
+      const dress = box.querySelector('input[name="dress"]:checked');
+      const lain = document.getElementById("dressLain").value.trim();
+      const hasil = document.getElementById("hasilDress");
+      hasil.textContent = (dress || lain) ? "Dress code: " + (dress ? dress.value : lain) + " 🥰" : "Pilih dress code dulu ya";
+    });
+
+    // Kirim pesan
+    document.getElementById("kirimPesan").addEventListener("click", () => {
+      const isi = document.getElementById("pesanText").value.trim();
+      document.getElementById("hasilPesan").textContent = isi ? "Pesan terkirim: " + isi : "Tulis pesannya dulu ya";
+    });
+
+    // Setelah pesan dikirim, tampilkan tiket ringkasan
+    document.getElementById("kirimPesan").addEventListener("click", () => {
+      const isi = document.getElementById("pesanText").value.trim();
+      if (!isi) return;
+      const hari = document.getElementById("hari").value;
+      const tgl = document.getElementById("tanggal").value;
+      const bln = document.getElementById("bulan").value;
+      const thn = document.getElementById("tahun").value;
+      const waktu = document.getElementById("waktu").value;
+      const jam = document.getElementById("jam").value;
+      const kegiatan = [...document.querySelectorAll("#activity .chips input:checked")].map(i => i.value);
+      const lainKeg = document.getElementById("lainnya").value.trim();
+      if (lainKeg) kegiatan.push(lainKeg);
+      const dressEl = document.querySelector('input[name="dress"]:checked');
+      const dressLain = document.getElementById("dressLain").value.trim();
+      const dress = dressEl ? dressEl.value : (dressLain || "-");
+
+      const tiket = document.createElement("div");
+      tiket.className = "ticket-wrap";
+      tiket.innerHTML = `
+        <div class="t-heart">♥</div>
+        <h2 class="t-yeay">Yeay, it's a date!</h2>
+        <p class="t-sub">SIMPAN TIKETMU DI BAWAH</p>
+        <div class="ticket">
+          <div class="t-head">
+            <div>
+              <p class="t-label">ADMIT TWO</p>
+              <h3 class="t-title">Date Invitation</h3>
+            </div>
+            <div class="t-badge">♥</div>
+          </div>
+          <div class="t-row"><p class="t-k">Untuk</p><p class="t-v">Ahmad</p></div>
+          <div class="t-row"><p class="t-k">Kapan</p><p class="t-v">${hari}, ${tgl} ${bln} ${thn} · ${waktu} · jam ${jam}</p></div>
+          <div class="t-row"><p class="t-k">Acara</p><p class="t-v" id="tAcara"></p></div>
+          <div class="t-row"><p class="t-k">Dress code</p><p class="t-v" id="tDress"></p></div>
+          <div class="t-note"><p class="t-k">Notes dari kamu</p><p class="t-v" id="tNote"></p></div>
+        </div>
+      `;
+      card.appendChild(tiket);
+      tiket.querySelector("#tAcara").textContent = kegiatan.join(", ") || "-";
+      tiket.querySelector("#tDress").textContent = dress;
+      tiket.querySelector("#tNote").textContent = isi;
+      box.remove();
+
+      // Tombol simpan tiket dan pilih lagi
+      const aksi = document.createElement("div");
+      aksi.className = "t-aksi";
+      aksi.innerHTML = '<button id="simpanTiket" class="btn-main">Simpan tiket</button>' +
+        '<button id="pilihUlang" class="btn-sub">Pilih lagi</button>' +
+        '<p id="statusSimpan" class="t-status"></p>';
+      tiket.appendChild(aksi);
+
+      document.getElementById("simpanTiket").addEventListener("click", () => {
+        const status = document.getElementById("statusSimpan");
+        try {
+          localStorage.setItem("ajakan-tiket", tiket.querySelector(".ticket").innerText);
+          status.textContent = "Tiket tersimpan";
+        } catch (e) {
+          status.textContent = "Tiket tidak bisa disimpan di browser ini";
+        }
+      });
+
+      document.getElementById("pilihUlang").addEventListener("click", () => {
+        tiket.remove();
+        document.getElementById("buttons").style.display = "";
+        document.getElementById("msg").textContent = "";
+      });
+    });
+
+    // Kembali ke pertanyaan awal (Yes / No)
+    document.getElementById("kembali").addEventListener("click", () => {
+      box.remove();
+      document.getElementById("buttons").style.display = "";
+      document.getElementById("msg").textContent = "";
+    });
+  }
+</script>
+
+</body>
+</html>
